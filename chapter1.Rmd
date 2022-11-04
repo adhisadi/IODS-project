@@ -4,10 +4,18 @@
 *Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
 
 ```{r}
-# This is a so-called "R chunk" where you can write R code.
+# Hi IODS, I am eager to learn about open data, open science and data science. I expect to improve my skills on data analysis and interpretation. I also hope to learn new things. This course was highly recommended by a collegue who attended it in the past. So I am excited and ready for learning.
 
 date()
 
 ```
-The text continues here.
+# MY experience with exercise set 1
 
+```{r}
+# I am familiar to R but I found some information and suggestion in the book that might be useful.I usually save R file and folders for a particular project in a designated project folder, but never have an RStudio project. This might be usefult to try and see the difference compared to my approach. I am also familiar to most of the contents in chapter 1-4. However it was fun to run the codes and realize ways to improve my codes and plots.
+
+date()
+
+```
+# The link to my GitHub repository
+#https://github.com/adhisadi/IODS-project
