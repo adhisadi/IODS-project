@@ -1,5 +1,4 @@
-#Assignment 2
-# Regression and model validation
+# ASSIGNMENT 2: REGRESSION AND MODEL VALIDATION
 
 *Describe the work you have done this week and summarize your learning.*
 
@@ -25,7 +24,7 @@ Analysis (max 15 points)
 
 Read the students2014 data into R either from your local folder (if you completed the Data wrangling part) or from this url: https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt . (The separator is a comma "," and the file includes a header). Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. There is information related to the data here. (0-2 points)
 
-# lEARNING THE DATATSET
+# LEARNING THE DATATSET
 
 ```{r}
 #This dataset comes from survey during the study "The relationship between learning approaches and students' achievements in an introductory statistics course in Finland, 2015". The results of the study are available here: https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland 
@@ -55,7 +54,7 @@ str(learning2014)
 
 Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)
 
-#GRAPHICAL OVERVIEW
+# GRAPHICAL OVERVIEW
 
 ```{r}
 #Here is a summary table of the above dataset:
@@ -85,7 +84,7 @@ p
 
 Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent, outcome) variable. Show a summary of the fitted model and comment and interpret the results. Explain and interpret the statistical test related to the model parameters. If an explanatory variable in your model does not have a statistically significant relationship with the target variable, remove the variable from the model and fit the model again without it. (0-4 points)
 
-#REGRESSION MODEL
+# REGRESSION MODEL
 
 ```{r}
 # fit a linear model
@@ -168,9 +167,9 @@ plot(my_model, which = 5)
 
 After completing all the phases above you are ready to submit your Assignment for the review (using the Moodle Workshop below). Have the two links (your GitHub repository and your course diary) ready!
 
-```{r}
+
 # The link to my GitHub repository
-#https://github.com/adhisadi/IODS-project
-#The link to my course diary
-#https://adhisadi.github.io/IODS-project/
-```
+# https://github.com/adhisadi/IODS-project
+# The link to my course diary
+# https://adhisadi.github.io/IODS-project/
+
