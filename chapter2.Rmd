@@ -1,12 +1,17 @@
+#Assignment 2
 # Regression and model validation
 
 *Describe the work you have done this week and summarize your learning.*
-This week I studied chapter 7 "Linear regression" from the book R for health data science, available here: https://argoshare.is.ed.ac.uk/healthyr_book/chap07-h1.html
-I am also learning data wrangling, which means how to manage large datatables and create small, managable working size tables. After that I am learning regression analysis and model validation with univariate and multivariate regression models.
 
 ```{r}
 date()
 ```
+
+```{r}
+#This week I studied chapter 7 "Linear regression" from the book R for health data science, available here: https://argoshare.is.ed.ac.uk/healthyr_book/chap07-h1.html
+#I am also learning data wrangling, which means how to manage large datatables and create small, managable working size tables. After that I am learning regression analysis and model validation with univariate and multivariate regression models.
+```
+
 
 Data wrangling (max 5 points)
 ```{r}
@@ -17,10 +22,16 @@ Data wrangling (max 5 points)
 
 
 Analysis (max 15 points)
+
 Read the students2014 data into R either from your local folder (if you completed the Data wrangling part) or from this url: https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt . (The separator is a comma "," and the file includes a header). Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. There is information related to the data here. (0-2 points)
 
-#lEARNING THE DATATSET
-#This dataset comes from survey during the study "The relationship between learning approaches and students' achievements in an introductory statistics course in Finland, 2015". The results of the study are available here: https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland .
+# lEARNING THE DATATSET
+
+```{r}
+#This dataset comes from survey during the study "The relationship between learning approaches and students' achievements in an introductory statistics course in Finland, 2015". The results of the study are available here: https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland 
+```
+
+
 
 ```{r}
 learning2014 <- read.csv("data/assignment2_regression_and_model_validation_data_wrangling.csv")
