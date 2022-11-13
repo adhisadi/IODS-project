@@ -38,11 +38,11 @@ setwd("/Users/admin_adhisadi/workspace/School_work/IODS-project")
 getwd()
 #"/Users/admin_adhisadi/workspace/School_work/IODS-project"
 write.csv(dataset, "data/assignment2_regression_and_model_validation_data_wrangling.csv", row.names = F)
-df <- read.csv("data/assignment2_regression_and_model_validation_data_wrangling.csv")
+learning2014 <- read.csv("data/assignment2_regression_and_model_validation_data_wrangling.csv")
 
-str(df)
-str(dataset)
+str(learning2014)
+str(learning2014)
 
-head(df)
+head(learning2014)
 head(dataset)
-#df and dataset are same
+#learning2014 and dataset are same
