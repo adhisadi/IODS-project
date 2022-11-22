@@ -1,0 +1,215 @@
+---
+title: "chapter3.Rmd"
+author: "Sadiksha Adhikari"
+date: "2022-11-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# ASSIGNMENT 3: LOGISTIC REGRESSION
+
+
+```{r}
+date()
+```
+
+```{r}
+#Read the joined student alcohol consumption data into R either from your local folder (if you completed the Data wrangling part) or from this url (in case you got stuck with the Data wrangling part): 
+#https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv
+#(In the above linked file, the column separator is a comma and the first row includes the column names). Print out the names of the variables in the data and describe the data set briefly, assuming the reader has no previous knowledge of it. There is information related to the data here. (0-1 point)
+
+library(readr)
+#I have created the file in data wrangling part. But still reading from both data wrangling and online source, just to check
+setwd("/Users/admin_adhisadi/workspace/School_work/IODS-project")
+alc <- read_csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv", show_col_types=FALSE)
+alc2 <- read.csv("data/math_por.csv", sep = ",", header=TRUE)
+colnames(alc)
+colnames(alc2)
+str(alc)
+str(alc2)
+# Analysis done using one of the datasets
+
+```
+
+### Student performance dataset
+On week 3, we are working with a new dataset about student performance. This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features) and it was collected by using school reports and questionnaires. Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). In [Cortez and Silva, 2008], the two datasets were modeled under binary/five-level classification and regression tasks.  More information available here: https://archive.ics.uci.edu/ml/datasets/Student+Performance 
+'alc_use' column shows average of weekday and weekend alcohol consumption (Dalc + Walc)
+'high_use' column was created using 'alc_use' column. TRUE is used for students for which 'alc_use' is greater than 2 (and FALSE otherwise)
+
+Variable names included for the analysis and structure of dataset: 
+  
+  
+```{r}
+colnames(alc)
+str(alc)
+```
+
+###hypothesis
+
+```{r}
+#The purpose of your analysis is to study the relationships between high/low alcohol consumption and some of the other variables in the data. To do this, choose 4 interesting variables in the data and for each of them, present your personal hypothesis about their relationships with alcohol consumption. (0-1 point)
+```
+Basically with this dataset we are studying relationship between student's behavior and alcohol consumption. I am taking these 4 variables:  famsize, Pstatus, activities and absences.
+Here are description of the columns and my hypothesis. My hypothesis mostly comes from stereotypes.
+
+famsize - family size (binary: 'LE3' - less or equal to 3 or 'GT3' - greater than 3)  
+Big family size could mean extended family as uncle aunt grandparents or more children in the family, depends on the culture I think. I assume here big family size means more number of children. 
+Hence my hypothesis is that there may be higher alcohol consumption with increased family size. This could be due to several factors such as difficulty in managing financial and emotional needs of each children by the parents.
+
+Pstatus - parent's cohabitation status (binary: 'T' - living together or 'A' - apart) 
+Students raised by single parent have increased alcohol consumption, similar reasons as above: difficulty in managing financial and emotional needs of child.
+
+activities - extra-curricular activities (binary: yes or no) 
+Increased extra-curricular activities means active and busy life and more social support. Hence there is less likelihood of alcohol consumption. 
+
+absences - number of school absences (numeric: from 0 to 93)
+Increased number of school absences means there may be several problems in the student's life. Hence there is increased likelihood of alcohol consumption. In addition all of the above factors, increased family size, parents living apart, and low extra curricular activities is likely to contribute to higher absences along with increased alcohol consumption.
+
+### Plots
+
+```{r}
+library(dplyr)
+library(gmodels)
+library(ggplot2)
+CrossTable(alc$high_use, alc$famsize, dnn = c("High alcohol consumption", "Family size"))
+
+p1 <- alc %>% 
+  ggplot(aes(x = famsize, fill = high_use)) + 
+  geom_bar()
+
+p2 <- alc %>% 
+  ggplot(aes(x = famsize, fill = high_use)) + 
+  geom_bar(position = "fill") + 
+  ylab("proportion")
+
+library(patchwork)
+p1 + p2
+```
+
+
+Large family size does not mean high alcohol consumption.
+
+```{r}
+CrossTable(alc$high_use, alc$Pstatus, dnn = c("High alcohol consumption", "Parental status"))
+p1 <- alc %>% 
+  ggplot(aes(x = Pstatus, fill = high_use)) + 
+  geom_bar()
+
+p2 <- alc %>% 
+  ggplot(aes(x = Pstatus, fill = high_use)) + 
+  geom_bar(position = "fill") + 
+  ylab("proportion")
+p1 + p2
+```
+
+
+Parent's cohabitation status does not seem to contribute to alcohol consumption.
+
+
+```{r}
+CrossTable(alc$high_use, alc$activities, dnn = c("High alcohol consumption", "Extra-curricular activities"))
+
+p1 <- alc %>% 
+  ggplot(aes(x = activities, fill = high_use)) + 
+  geom_bar()
+
+p2 <- alc %>% 
+  ggplot(aes(x = activities, fill = high_use)) + 
+  geom_bar(position = "fill") + 
+  ylab("proportion")
+p1 + p2
+```
+
+
+Extra-curricular activities does not seem to affect alcohol consumption.
+
+
+```{r}
+library(ggplot2)
+#let's plot absences as it is numeric
+p1 <- ggplot(alc, aes(x= absences, fill=high_use)) + geom_density(alpha=0.4)
+p1+ theme_bw()
+```
+
+###logistic regression
+
+
+```{r}
+#model
+m <- glm(high_use ~ (alc$famsize == "GT3") + (activities == "no") + (Pstatus == "A") + absences, data = alc, family = "binomial")
+#odds ratio
+OR <- coef(m) %>% exp
+#confidence interval
+CI <- confint(m) %>% exp
+#summary
+summary(m)
+coef(m)
+#odds ratios with their confidence intervals
+cbind(OR, CI)
+```
+
+The results show that increased family size, parents living apart, and low extra curricular activities are not likely to contribute to  increased alcohol consumption. OR = 1.09 shows that the odds that the student will be consuming alcohol in excess is nearly always. Confidence intervals for other variables are varying (0.18, highly unlikely to 2.11, highly likely). My hypothesis was not proven to be correct.
+
+### Predictive power and graphical presentation
+
+
+```{r}
+# predictions versus actual values
+# predict() the probabilty of high_use
+probability <- predict(m, type = "response")
+# add the predicted probability to 'alc'
+alc <- mutate(alc, probability = probability)
+# use probability to make a prediction of high_use
+alc <- mutate(alc, prediction = probability > 0.5 )
+# tabulate target variable versus predictions
+table(high_use = alc$high_use, prediction = alc$prediction) %>% 
+prop.table() %>% 
+addmargins
+```
+This shows that my hypothesis was bad. These common negative stereotypes I mentioned in my hypothesis should be avoided.
+The only variable that work from my model is absence, which is shown below:
+
+```{r}
+# new model
+m2 <- glm(high_use ~ absences, data = alc, family = "binomial")
+# Odds ratios
+OR2 <- coef(m2) %>% exp
+# confidence intervals
+CI2 <- confint(m2) %>% exp
+#probability of high alcohol consumption
+probability_2 <- predict(m2, type = "response")
+# add predicted probability to 'alc'
+alc <- mutate(alc, probability_2 = probability_2)
+# use probability to make a prediction of high_use
+alc <- mutate(alc, prediction_2 = probability_2 > 0.5 )
+# Summary of the model
+summary(m2)
+# Coefficients of the model
+coef(m2)
+# Odds ratios with their confidence intervals
+cbind(OR2, CI2)
+```
+
+The results show that students who are more absent from their classes are more likely consume excess alcohol.
+Let’s see how these two models compare with a likelihood ratio test:
+
+```{r, echo=FALSE}
+anova(m, m2, test="LRT")
+```
+
+
+```{r}
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+g <- ggplot(alc, aes(x = probability_2, y = high_use, col= prediction_2)) + xlab("probability")
+# define the geom as points and draw the plot
+g + geom_point() 
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction_2) %>% 
+prop.table() %>% 
+addmargins
+```
+
+
