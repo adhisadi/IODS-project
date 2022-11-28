@@ -1,0 +1,241 @@
+---
+title: "chapter4.Rmd"
+author: "Sadiksha Adhikari"
+date: "2022-11-28"
+output: html_document
+---
+
+
+# ASSIGNMENT 4: CLUSTERING AND CLASSIFICATION
+```{r}
+date()
+```
+
+
+Create a new R Markdown file and save it as an empty file named ‘chapter4.Rmd’. Then include the file as a child file in your ‘index.Rmd’ file. Perform the following analysis in the file you created.
+Load the Boston data from the MASS package. Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. Details about the Boston dataset can be seen for example here. (0-1 points)
+https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html 
+```{r}
+library(dplyr)
+library(ggplot2)
+library(GGally)
+
+library(MASS)
+# load the data
+data("Boston")
+# explore the dataset
+str(Boston)
+dim(Boston)
+```
+Boston dataset consists of housing Values in Suburbs of Boston. It has 506 rows and 14 columns. Here is the description of each column:
+crim: per capita crime rate by town.
+
+zn: proportion of residential land zoned for lots over 25,000 sq.ft.
+
+indus: proportion of non-retail business acres per town.
+
+chas: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+
+nox: nitrogen oxides concentration (parts per 10 million).
+
+rm: average number of rooms per dwelling.
+
+age: proportion of owner-occupied units built prior to 1940.
+
+dis: weighted mean of distances to five Boston employment centres.
+
+rad: index of accessibility to radial highways.
+
+tax: full-value property-tax rate per $10,000.
+
+ptratio: pupil-teacher ratio by town.
+
+black: 1000(Bk - 0.63)^21000(Bk−0.63)^2 where BkBk is the proportion of blacks by town.
+
+lstat:lower status of the population (percent).
+
+medv: median value of owner-occupied homes in $1000s.
+
+
+Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-2 points)
+
+
+```{r}
+cor_matrix <- cor(Boston) 
+cor_matrix <- cor_matrix %>% round(digits = 2)
+library(corrplot)
+corrplot(cor_matrix, method="circle")
+library("psych")  #for p-value table
+cor_test_mat <- corr.test(cor_matrix)$p    # Apply corr.test function
+cor_test_mat 
+corrplot(cor_matrix,p.mat = cor_test_mat,insig = "p-value")
+
+```
+
+This plot shows the correlation matrix. The areas of circles show the absolute value of corresponding correlation coefficients. Lighter shade of circle means decreasing correlation (white is no correlation). Darker shade of blue means increasing positive correlation and darker shade towards red means increasing negative correlation.The number inside the cells show p-values; p-values have been added only to those cells, where the correlation coefficients are not significant. We see both positive and negative correlations among several varaibles with significant p-value. We see high negative correlation of dis with indus, nox and age and that also between lstat and medv. We see highest positive correlation of rad with tax.  
+
+```{r}
+cor_matrix <- as.data.frame(cor_matrix)
+p <- ggpairs(cor_matrix, mapping = aes(), 
+                     lower = list(combo = wrap("facethist", bins = 20))) + theme_bw()
+p
+```
+
+We see bimodal distributions for most variables. Variable zn, rm, dis, black appear to be skewed right. 
+Here is the summary of the variables:
+```{r}
+summary(Boston)
+```
+
+Standardize the dataset and print out summaries of the scaled data. How did the variables change? Create a categorical variable of the crime rate in the Boston dataset (from the scaled crime rate). Use the quantiles as the break points in the categorical variable. Drop the old crime rate variable from the dataset. Divide the dataset to train and test sets, so that 80% of the data belongs to the train set. (0-2 points)
+
+```{r}
+# center and standardize variables
+boston_scaled <- scale(Boston)
+# summaries of the scaled variables
+summary(boston_scaled)
+# class of the boston_scaled object
+class(boston_scaled)
+# change the object to data frame
+boston_scaled <- as.data.frame(boston_scaled)
+boston_scaled$crim <- as.numeric(boston_scaled$crim) #required for next step
+# summary of the scaled crime rate
+summary(Boston$crim)
+# create a categorical variable of the crime rate in the Boston dataset, Use the quantiles as the break points 
+# create a quantile vector of crim
+bins <- quantile(boston_scaled$crim)
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE)
+table(crime)
+#Drop the old crime rate variable from the dataset
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+# add the new categorical value to scaled data
+boston_scaled <- data.frame(boston_scaled, crime)
+boston_scaled$crime <- factor(boston_scaled$crime, levels = c("low", "med_low", "med_high", "high"))
+
+#Divide the dataset to train and test sets, so that 80% of the data belongs to the train set.
+# number of rows in the Boston dataset 
+n <- nrow(boston_scaled)
+# choose randomly 80% of the rows
+ind <- sample(n,  size = n * 0.8)
+# create train set
+train <- boston_scaled[ind,]
+
+# create test set 
+test <- boston_scaled[-ind,]
+```
+
+By scaling, we have subtracted the column means from the corresponding columns and divided the difference with standard deviation.
+$$scaled(x) = \frac{x - mean(x)}{ sd(x)}$$
+As a result in scaled output we see that for each variable, now the mean is 0; min, 1st Quadrant, 2nd Quadrant are negative numbers; 3rd, 4th quadrant and max are positive numbers. 
+
+
+Fit the linear discriminant analysis on the train set. Use the categorical crime rate as the target variable and all the other variables in the dataset as predictor variables. Draw the LDA (bi)plot. (0-3 points)
+
+
+Linear discriminant analysis:
+```{r}
+# linear discriminant analysis on train set
+#I am taking boston_scaled from here as somehow the lda function produces warning in my previous boston_scaled dataframe.
+
+boston_scaled <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/boston_scaled.txt",sep=",", header = T)
+boston_scaled$crime <- factor(boston_scaled$crime, levels = c("low", "med_low", "med_high", "high"))
+ind <- sample(nrow(boston_scaled),  size = nrow(boston_scaled) * 0.8)
+train <- boston_scaled[ind,]
+
+lda.fit <- lda(crime ~ ., data = train)
+# print the lda.fit object
+lda.fit
+# the function for lda biplot arrows
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+# target classes as numeric. Leaving this as character gives error. 
+classes <- as.numeric(train$crime)
+
+# Draw the LDA (bi)plot
+plot(lda.fit, dimen = 2,  col = classes, pch = classes)
+lda.arrows(lda.fit, myscale = 1)
+
+```
+
+Save the crime categories from the test set and then remove the categorical crime variable from the test dataset. Then predict the classes with the LDA model on the test data. Cross tabulate the results with the crime categories from the test set. Comment on the results. (0-3 points)
+
+```{r}
+test <- boston_scaled[-ind,]
+# save the crime categories from the test set
+correct_classes <- test$crime
+# remove the crime variable from test data
+test <- dplyr::select(test, -crime)
+# predict classes with test data
+lda.pred <- predict(lda.fit, newdata = test)
+# cross tabulate the results
+table(correct = correct_classes , predicted = lda.pred$class)
+plot(table(correct = correct_classes , predicted = lda.pred$class))
+#wrong predictions in the (training) data
+mean(correct_classes != lda.pred$class)
+```
+
+Here is the test error rate:
+```{r}
+error <- mean(correct_classes != lda.pred$class)
+errorrate <- error*100
+paste0(errorrate, "%")
+```
+
+Reload the Boston dataset and standardize the dataset (we did not do this in the Exercise Set, but you should scale the variables to get comparable distances). Calculate the distances between the observations. Run k-means algorithm on the dataset. Investigate what is the optimal number of clusters and run the algorithm again. Visualize the clusters (for example with the pairs() or ggpairs() functions, where the clusters are separated with colors) and interpret the results. (0-4 points)
+
+```{r}
+library(MASS)
+data("Boston")
+boston_scaled <- scale(Boston)
+dist_eu <- dist(boston_scaled)
+summary(dist_eu)
+```
+
+```{r}
+set.seed(123)
+k_max <- 10
+# calculate the total within sum of squares
+twcss <- sapply(1:k_max, function(k){kmeans(boston_scaled, k)$tot.withinss})
+# visualize the results
+qplot(x = 1:k_max, y = twcss, geom = 'line') + scale_x_continuous(breaks=seq(1, 10, 1))
+```
+
+The value of total WCSS changes radically at 2. So two clusters would seem optimal
+
+```{r}
+# k-means clustering
+km <- kmeans(boston_scaled, centers = 2)
+# plot the Boston dataset with clusters
+pairs(boston_scaled, col = km$cluster)
+```
+
+This is impossible to intrepret. Lets try different ways to look at clusters, 1.by dividing the dataset to include only few columns, 2. each correlation separately (doing only two that seem to have correlation for now)
+```{r}
+pairs(boston_scaled[, 1:7], col = km$cluster)
+pairs(boston_scaled[, 8:14], col = km$cluster)
+
+
+library(tidyverse)
+clusters <- factor(km$cluster)
+boston_scaled <- as.data.frame(boston_scaled)
+boston_scaled %>% ggplot(aes(x = indus, y = nox, col = clusters)) +
+  geom_point()
+
+boston_scaled <- as.data.frame(boston_scaled)
+boston_scaled %>% ggplot(aes(x =lstat, y = medv, col = clusters)) +
+  geom_point()
+
+#ggpairs(boston_scaled, mapping = aes(col = clusters), lower = list(combo = wrap("facethist", bins = 20))) + theme_bw() 
+#commented because it is still crowded figure.
+
+```
+
+
+We see positive correlation between indus and nox for cluster 1 but no correlation for cluster 2. There is negative correlation between lstat and medv for both clusters.
+
