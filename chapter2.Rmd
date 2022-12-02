@@ -1,18 +1,14 @@
 # ASSIGNMENT 2: REGRESSION AND MODEL VALIDATION
 
 *Describe the work you have done this week and summarize your learning.*
-
 ```{r}
 date()
 ```
-
-```{r}
-#This week I studied chapter 7 "Linear regression" from the book R for health data science, available here: https://argoshare.is.ed.ac.uk/healthyr_book/chap07-h1.html
-#I am also learning data wrangling, which means how to manage large datatables and create small, managable working size tables. After that I am learning regression analysis and model validation with univariate and multivariate regression models.
-```
+This week I studied chapter 7 "Linear regression" from the book R for health data science, available here: https://argoshare.is.ed.ac.uk/healthyr_book/chap07-h1.html. I am also learning data wrangling, which means how to manage large datatables and create small, managable working size tables. After that I am learning regression analysis and model validation with univariate and multivariate regression models.
 
 
-Data wrangling (max 5 points)
+*Data wrangling (max 5 points)*
+
 ```{r}
 #The codes for this exercise is available inside data folder along with the file created
 #create_learning2014.R
@@ -20,71 +16,68 @@ Data wrangling (max 5 points)
 ```
 
 
-Analysis (max 15 points)
+*Analysis (max 15 points)*
 
-Read the students2014 data into R either from your local folder (if you completed the Data wrangling part) or from this url: https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt . (The separator is a comma "," and the file includes a header). Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. There is information related to the data here. (0-2 points)
+*Read the students2014 data into R either from your local folder (if you completed the Data wrangling part) or from this url: https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt . (The separator is a comma "," and the file includes a header). Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. There is information related to the data here. (0-2 points)*
 
-# LEARNING THE DATATSET
+## Learning the dataset
 
-```{r}
-#This dataset comes from survey during the study "The relationship between learning approaches and students' achievements in an introductory statistics course in Finland, 2015". The results of the study are available here: https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland 
-```
-
-
+This dataset comes from survey during the study "The relationship between learning approaches and students' achievements in an introductory statistics course in Finland, 2015". The results of the study are available here: https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland 
 
 ```{r}
 learning2014 <- read.csv("data/assignment2_regression_and_model_validation_data_wrangling.csv")
 dim(learning2014)
-#166 rows and 7 columns
-
-#I am using a shorter version of the dataset produced by data wrangling. Here is the structure of the dataset:
-str(learning2014)
-
-#Each column is described below:
-
-# Gender represents Caterogical variable with Male (M) and Female (F)
-# Age represents Age (in years) derived from the date of birth
-# Attitude is numerical variable representing Global attitude toward statistics
-# deep is numerical variable representing Deep approach calculated by taking mean of several other variable output from the survey that aimed to understand about seeking Meaning, relating ideas and use of evidence
-# stra is numerical variable representing Strategic approach calculated by taking mean of several other variables that aimed to understand about Organized Studying and Time Management.
-# surf is numerical variable representing Surface approach calculated by taking mean of several other variables that aimed to understand about Lack of Purpose, Unrelated Memorising and Syllabus-boundness.
-# Points is numerical variable with integers representing Exam points
-
 ```
 
-Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)
-
-# GRAPHICAL OVERVIEW
+The dataset has 166 rows and 7 columns.
+I am using a shorter version of the dataset produced by data wrangling. Here is the structure of the dataset:
 
 ```{r}
-#Here is a summary table of the above dataset:
+str(learning2014)
+```
+
+Each column is described below:
+Gender represents Caterogical variable with Male (M) and Female (F). 
+Age represents Age (in years) derived from the date of birth. 
+Attitude is numerical variable representing Global attitude toward statistics. 
+deep is numerical variable representing Deep approach calculated by taking mean of several other variable output from the survey that aimed to understand about seeking Meaning, relating ideas and use of evidence
+stra is numerical variable representing Strategic approach calculated by taking mean of several other variables that aimed to understand about Organized Studying and Time Management. 
+surf is numerical variable representing Surface approach calculated by taking mean of several other variables that aimed to understand about Lack of Purpose, Unrelated Memorising and Syllabus-boundness. 
+Points is numerical variable with integers representing Exam points.
+
+
+*Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)*
+
+## Graphical overview
+
+Here is a summary table of the above dataset:
+```{r}
 summary(learning2014)
+```
 
-# In this study female participants were almost double in number compared to male participants. Based on the summary analysis deep, surface, strategic questions and points are normally distributed as their mean and median values are very close. Age distribution seems to be scewed towards left, i.e younger participants (Standard deviation: 21 - 27 years old), with a few older students (maximum 55 years old).
+In this study female participants were almost double in number compared to male participants. Based on the summary analysis deep, surface, strategic questions and points are normally distributed as their mean and median values are very close. Age distribution seems to be scewed towards left, i.e younger participants (Standard deviation: 21 - 27 years old), with a few older students (maximum 55 years old).
 
-#Here is a graphical overview from the dataset for better understanding of the relationship of available variables:
+Here is a graphical overview from the dataset for better understanding of the relationship of available variables:
 
+```{r}
 library(GGally) 
 library(ggplot2)
 # Draw the plot 
 p <- ggpairs(learning2014, mapping = aes(col = gender), 
                      lower = list(combo = wrap("facethist", bins = 20))) + theme_bw()
 p
-
-
-# Male students are more likely to show high attitude towards statistics.
-# There was almost no correlation between age and other variables. 
-# Male students show significant negative correlation in Surface approach and their attitude as well as response to deep approach questions. 
-# There was significant negative correlation between attitude and points scored for both genders.
-# Also negative correlation is observed in both genders points scored and their response to deep and surface approach, although the results were not significant. 
-
 ```
 
+Male students are more likely to show high attitude towards statistics. 
+There was almost no correlation between age and other variables. 
+Male students show significant negative correlation in Surface approach and their attitude as well as response to deep approach questions. 
+There was significant negative correlation between attitude and points scored for both genders. 
+Also negative correlation is observed in both genders points scored and their response to deep and surface approach, although the results were not significant. 
 
 
-Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent, outcome) variable. Show a summary of the fitted model and comment and interpret the results. Explain and interpret the statistical test related to the model parameters. If an explanatory variable in your model does not have a statistically significant relationship with the target variable, remove the variable from the model and fit the model again without it. (0-4 points)
+*Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent, outcome) variable. Show a summary of the fitted model and comment and interpret the results. Explain and interpret the statistical test related to the model parameters. If an explanatory variable in your model does not have a statistically significant relationship with the target variable, remove the variable from the model and fit the model again without it. (0-4 points)*
 
-# REGRESSION MODEL
+## Regression model
 
 ```{r}
 # fit a linear model
@@ -93,30 +86,31 @@ my_model <- lm(Points ~ Attitude + stra+ surf, data = learning2014)
 summary(my_model)
 ```
 
-```{r}
-#In this multivariate model the most important factor affecting the student's final exam result appears to be only *Attitude* (p-value less than 0)! There is no significant relationship between strategic and surface approach to points scored. The R-squared value of 0.2074 implies that the model can explain 20% or about one-fifth of the variation in the outcome.
+In this multivariate model the most important factor affecting the student's final exam result appears to be only *Attitude* (p-value less than 0)! There is no significant relationship between strategic and surface approach to points scored. The R-squared value of 0.2074 implies that the model can explain 20% or about one-fifth of the variation in the outcome.
 
+```{r}
 # fit a linear model with variangle with statistically significant relationship with Points, i.e Attitude
 my_model <- lm(Points ~ Attitude, data = learning2014)
 # print out a summary of the model
 summary(my_model)
 ```
 
+*Using a summary of your fitted model, explain the relationship between the chosen explanatory variables and the target variable (interpret the model parameters). Explain and interpret the multiple R-squared of the model. (0-3 points)*
 
-Using a summary of your fitted model, explain the relationship between the chosen explanatory variables and the target variable (interpret the model parameters). Explain and interpret the multiple R-squared of the model. (0-3 points)
+Target variable 'Points' has statistically significant relationship with explanatory variable 'Attitute' (P-value less than 0). At estimated (theoretical) attitude value of 0 the points scored would be 11.64 with a standard error 1.83. For every point of attitude increased, there is 3.53 more exam points scored with a standard error of 0.57.
+
+R-squared is always between 0 and 1, 0 (representing 0%) indicates that the model explains none of the variability of the response data around its mean. 1 (representing 100%) indicates that the model explains all the variability of the response data around its mean. Multiple R-squared is used for evaluating how well the model fits the data. In this case, Multiple R-squared value of 0.1906 implies that the model can explain only 19.06% of the variation in the outcome.
+
+This is how the model looks
 
 ```{r}
-# Target variable 'Points' has statistically significant relationship with explanatory variable 'Attitute' (P-value less than 0). At estimated (theoretical) attitude value of 0 the points scored would be 11.64 with a standard error 1.83. For every point of attitude increased, there is 3.53 more exam points scored with a standard error of 0.57.
-
-#R-squared is always between 0 and 1, 0 (representing 0%) indicates that the model explains none of the variability of the response data around its mean. 1 (representing 100%) indicates that the model explains all the variability of the response data around its mean. Multiple R-squared is used for evaluating how well the model fits the data. In this case, Multiple R-squared value of 0.1906 implies that the model can explain only 19.06% of the variation in the outcome.
-
-#This is how the model looks
 library(ggplot2)
 qplot(Attitude, Points, data = learning2014) + geom_smooth(method = "lm") + ggtitle("Student's attitude versus exam points")
-
 ```
 
-Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots. (0-3 points)
+*Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots. (0-3 points)*
+
+## Diagnostic plots
 
 ```{r}
 #R makes it easy to graphically explore the validity of your model assumptions. If you give a linear model object as the first argument to the `plot()` function, the function automatically assumes you want diagnostic plots and will produce them. You can check the help page of plotting an lm object by typing `?plot.lm` or `help(plot.lm)` to the R console. 
@@ -139,37 +133,29 @@ Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-pl
 plot(my_model, which = 1)
 ```
 
-```{r}
-#The Residuals vs Fitted plot studies the variance of the residuals. This plot represents the deviation of the observed values of an element of a statistical sample from its theoretical value. The residual of an observed value is the difference between the observed value and the estimated value of the quantity of interest.
+The Residuals vs Fitted plot studies the variance of the residuals. This plot represents the deviation of the observed values of an element of a statistical sample from its theoretical value. The residual of an observed value is the difference between the observed value and the estimated value of the quantity of interest.
 
-#Here, the linearity of the regression model is supported by homoscedasticity, or homogeneity of variances. Homoscedasticity is an assumption of equal or similar variances in different groups being compared. In this model we see that residuals appear close to 10 points difference (positive and negative) from the fitted values. There are three exceptional observations 145, 56 and 35.
-```
+Here, the linearity of the regression model is supported by homoscedasticity, or homogeneity of variances. Homoscedasticity is an assumption of equal or similar variances in different groups being compared. In this model we see that residuals appear close to 10 points difference (positive and negative) from the fitted values. There are three exceptional observations 145, 56 and 35.
+
 
 ```{r}
 #Normal QQ-plot
 plot(my_model, which = 2)
 ```
 
-```{r}
-#A Q-Q (quantile-quantile) plot is a probability plot. It is used for comparing two probability distributions by plotting their quantiles against each other. Here, the two distributions being compared are the fitted model vs the observed values. Our model is normally distrubuted. There are some non fitting observations at the extremes of the distribution. These are expected to have very little impact on the model. The observations 145, 56 and 35 again appear as not good representations of the fitted model.
-```
+A Q-Q (quantile-quantile) plot is a probability plot. It is used for comparing two probability distributions by plotting their quantiles against each other. Here, the two distributions being compared are the fitted model vs the observed values. Our model is normally distrubuted. There are some non fitting observations at the extremes of the distribution. These are expected to have very little impact on the model. The observations 145, 56 and 35 again appear as not good representations of the fitted model.
+
 
 ```{r}
 #Residuals vs Leverage
 plot(my_model, which = 5)
 ```
 
-```{r}
-#Here we plotted the standardized residuals vs the leverage of the fitted model. Leverage is a measure of how far away the independent variable values of an observation are from those of the other observations. This plot shows the impact of every single observation on the fitted model. There are some results that have a high impact on the model,suggesting that the results are driven by a few data points. Here again 56 and 35and a new observation 71 have influence but 145 does not have very high leverage.
-```
+Here we plotted the standardized residuals vs the leverage of the fitted model. Leverage is a measure of how far away the independent variable values of an observation are from those of the other observations. This plot shows the impact of every single observation on the fitted model. There are some results that have a high impact on the model,suggesting that the results are driven by a few data points. Here again 56 and 35and a new observation 71 have influence but 145 does not have very high leverage.
+
+*After completing all the phases above you are ready to submit your Assignment for the review (using the Moodle Workshop below). Have the two links (your GitHub repository and your course diary) ready!
 
 
-
-After completing all the phases above you are ready to submit your Assignment for the review (using the Moodle Workshop below). Have the two links (your GitHub repository and your course diary) ready!
-
-
-# The link to my GitHub repository
-# https://github.com/adhisadi/IODS-project
-# The link to my course diary
-# https://adhisadi.github.io/IODS-project/
+The link to my GitHub repository: https://github.com/adhisadi/IODS-project
+The link to my course diary: https://adhisadi.github.io/IODS-project/
 

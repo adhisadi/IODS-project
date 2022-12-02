@@ -16,13 +16,17 @@ knitr::opts_chunk$set(echo = TRUE)
 date()
 ```
 
+*Read the joined student alcohol consumption data into R either from your local folder (if you completed the Data wrangling part) or from this url (in case you got stuck with the Data wrangling part)*
+*https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv*
+*(In the above linked file, the column separator is a comma and the first row includes the column names). Print out the names of the variables in the data and describe the data set briefly, assuming the reader has no previous knowledge of it. There is information related to the data here. (0-1 point)*
+
+## Load the dataset
+
+I have created the file in data wrangling part. But still reading from both data wrangling and online source, just to check
+
 ```{r}
-#Read the joined student alcohol consumption data into R either from your local folder (if you completed the Data wrangling part) or from this url (in case you got stuck with the Data wrangling part): 
-#https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv
-#(In the above linked file, the column separator is a comma and the first row includes the column names). Print out the names of the variables in the data and describe the data set briefly, assuming the reader has no previous knowledge of it. There is information related to the data here. (0-1 point)
 
 library(readr)
-#I have created the file in data wrangling part. But still reading from both data wrangling and online source, just to check
 setwd("/Users/admin_adhisadi/workspace/School_work/IODS-project")
 alc <- read_csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv", show_col_types=FALSE)
 alc2 <- read.csv("data/math_por.csv", sep = ",", header=TRUE)
@@ -31,44 +35,44 @@ colnames(alc2)
 str(alc)
 str(alc2)
 # Analysis done using one of the datasets
-
 ```
 
-### Student performance dataset
-On week 3, we are working with a new dataset about student performance. This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features) and it was collected by using school reports and questionnaires. Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). In [Cortez and Silva, 2008], the two datasets were modeled under binary/five-level classification and regression tasks.  More information available here: https://archive.ics.uci.edu/ml/datasets/Student+Performance 
+Student performance dataset:
+
+*On week 3, we are working with a new dataset about student performance. This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features) and it was collected by using school reports and questionnaires. Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). In [Cortez and Silva, 2008], the two datasets were modeled under binary/five-level classification and regression tasks.  More information available here: https://archive.ics.uci.edu/ml/datasets/Student+Performance 
 'alc_use' column shows average of weekday and weekend alcohol consumption (Dalc + Walc)
-'high_use' column was created using 'alc_use' column. TRUE is used for students for which 'alc_use' is greater than 2 (and FALSE otherwise)
+'high_use' column was created using 'alc_use' column. TRUE is used for students for which 'alc_use' is greater than 2 (and FALSE otherwise)*
 
 Variable names included for the analysis and structure of dataset: 
-  
-  
+
 ```{r}
 colnames(alc)
 str(alc)
 ```
 
-###hypothesis
 
-```{r}
-#The purpose of your analysis is to study the relationships between high/low alcohol consumption and some of the other variables in the data. To do this, choose 4 interesting variables in the data and for each of them, present your personal hypothesis about their relationships with alcohol consumption. (0-1 point)
-```
+
+*The purpose of your analysis is to study the relationships between high/low alcohol consumption and some of the other variables in the data. To do this, choose 4 interesting variables in the data and for each of them, present your personal hypothesis about their relationships with alcohol consumption. (0-1 point)*
+
+## Hypothesis
+
 Basically with this dataset we are studying relationship between student's behavior and alcohol consumption. I am taking these 4 variables:  famsize, Pstatus, activities and absences.
 Here are description of the columns and my hypothesis. My hypothesis mostly comes from stereotypes.
 
-famsize - family size (binary: 'LE3' - less or equal to 3 or 'GT3' - greater than 3)  
+famsize - family size (binary: 'LE3' - less or equal to 3 or 'GT3' - greater than 3).  
 Big family size could mean extended family as uncle aunt grandparents or more children in the family, depends on the culture I think. I assume here big family size means more number of children. 
 Hence my hypothesis is that there may be higher alcohol consumption with increased family size. This could be due to several factors such as difficulty in managing financial and emotional needs of each children by the parents.
 
-Pstatus - parent's cohabitation status (binary: 'T' - living together or 'A' - apart) 
+Pstatus - parent's cohabitation status (binary: 'T' - living together or 'A' - apart). 
 Students raised by single parent have increased alcohol consumption, similar reasons as above: difficulty in managing financial and emotional needs of child.
 
-activities - extra-curricular activities (binary: yes or no) 
+activities - extra-curricular activities (binary: yes or no). 
 Increased extra-curricular activities means active and busy life and more social support. Hence there is less likelihood of alcohol consumption. 
 
-absences - number of school absences (numeric: from 0 to 93)
+absences - number of school absences (numeric: from 0 to 93). 
 Increased number of school absences means there may be several problems in the student's life. Hence there is increased likelihood of alcohol consumption. In addition all of the above factors, increased family size, parents living apart, and low extra curricular activities is likely to contribute to higher absences along with increased alcohol consumption.
 
-### Plots
+## Plots
 
 ```{r}
 library(dplyr)
@@ -134,7 +138,7 @@ p1 <- ggplot(alc, aes(x= absences, fill=high_use)) + geom_density(alpha=0.4)
 p1+ theme_bw()
 ```
 
-###logistic regression
+## Logistic regression model
 
 
 ```{r}
@@ -153,7 +157,7 @@ cbind(OR, CI)
 
 The results show that increased family size, parents living apart, and low extra curricular activities are not likely to contribute to  increased alcohol consumption. OR = 1.09 shows that the odds that the student will be consuming alcohol in excess is nearly always. Confidence intervals for other variables are varying (0.18, highly unlikely to 2.11, highly likely). My hypothesis was not proven to be correct.
 
-### Predictive power and graphical presentation
+## Predictive power and graphical presentation
 
 
 ```{r}
@@ -169,8 +173,11 @@ table(high_use = alc$high_use, prediction = alc$prediction) %>%
 prop.table() %>% 
 addmargins
 ```
+
 This shows that my hypothesis was bad. These common negative stereotypes I mentioned in my hypothesis should be avoided.
 The only variable that work from my model is absence, which is shown below:
+
+## New model
 
 ```{r}
 # new model

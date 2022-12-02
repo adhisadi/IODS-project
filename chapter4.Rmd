@@ -7,18 +7,23 @@ output: html_document
 
 
 # ASSIGNMENT 4: CLUSTERING AND CLASSIFICATION
+
 ```{r}
 date()
 ```
 
 
-Create a new R Markdown file and save it as an empty file named ‘chapter4.Rmd’. Then include the file as a child file in your ‘index.Rmd’ file. Perform the following analysis in the file you created.
-Load the Boston data from the MASS package. Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. Details about the Boston dataset can be seen for example here. (0-1 points)
-https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html 
+*Create a new R Markdown file and save it as an empty file named ‘chapter4.Rmd’. Then include the file as a child file in your ‘index.Rmd’ file. Perform the following analysis in the file you created.*
+*Load the Boston data from the MASS package. Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. Details about the Boston dataset can be seen for example here. (0-1 points)*
+*https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html*
+
+## Load the data
+
 ```{r}
 library(dplyr)
 library(ggplot2)
 library(GGally)
+library(reshape)
 
 library(MASS)
 # load the data
@@ -27,6 +32,7 @@ data("Boston")
 str(Boston)
 dim(Boston)
 ```
+
 Boston dataset consists of housing Values in Suburbs of Boston. It has 506 rows and 14 columns. Here is the description of each column:
 crim: per capita crime rate by town.
 
@@ -57,7 +63,9 @@ lstat:lower status of the population (percent).
 medv: median value of owner-occupied homes in $1000s.
 
 
-Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-2 points)
+*Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-2 points)*
+
+## Graphical overview
 
 
 ```{r}
@@ -82,12 +90,24 @@ p
 ```
 
 We see bimodal distributions for most variables. Variable zn, rm, dis, black appear to be skewed right. 
-Here is the summary of the variables:
+
+```{r}
+# Distribution can be viewed also like this:
+# Note this part added later for improvement (after the assignment deadline was over) 
+ggplot(data = melt(Boston), aes(x = value)) + 
+stat_density() + 
+facet_wrap(~variable, scales = "free")
+```
+
+Here is the summary of the dataset 
+
 ```{r}
 summary(Boston)
 ```
 
-Standardize the dataset and print out summaries of the scaled data. How did the variables change? Create a categorical variable of the crime rate in the Boston dataset (from the scaled crime rate). Use the quantiles as the break points in the categorical variable. Drop the old crime rate variable from the dataset. Divide the dataset to train and test sets, so that 80% of the data belongs to the train set. (0-2 points)
+*Standardize the dataset and print out summaries of the scaled data. How did the variables change? Create a categorical variable of the crime rate in the Boston dataset (from the scaled crime rate). Use the quantiles as the break points in the categorical variable. Drop the old crime rate variable from the dataset. Divide the dataset to train and test sets, so that 80% of the data belongs to the train set. (0-2 points)*
+
+## Standardizing data, creating a categorical variable and forming a train and test set
 
 ```{r}
 # center and standardize variables
@@ -132,7 +152,8 @@ As a result in scaled output we see that for each variable, now the mean is 0; m
 Fit the linear discriminant analysis on the train set. Use the categorical crime rate as the target variable and all the other variables in the dataset as predictor variables. Draw the LDA (bi)plot. (0-3 points)
 
 
-Linear discriminant analysis:
+## Fit linear discriminant analysis on train set
+
 ```{r}
 # linear discriminant analysis on train set
 #I am taking boston_scaled from here as somehow the lda function produces warning in my previous boston_scaled dataframe.
@@ -163,7 +184,9 @@ lda.arrows(lda.fit, myscale = 1)
 
 ```
 
-Save the crime categories from the test set and then remove the categorical crime variable from the test dataset. Then predict the classes with the LDA model on the test data. Cross tabulate the results with the crime categories from the test set. Comment on the results. (0-3 points)
+*Save the crime categories from the test set and then remove the categorical crime variable from the test dataset. Then predict the classes with the LDA model on the test data. Cross tabulate the results with the crime categories from the test set. Comment on the results. (0-3 points)*
+
+## Predict the classes with the LDA model on the test data
 
 ```{r}
 test <- boston_scaled[-ind,]
@@ -183,11 +206,14 @@ mean(correct_classes != lda.pred$class)
 Here is the test error rate:
 ```{r}
 error <- mean(correct_classes != lda.pred$class)
-errorrate <- error*100
-paste0(errorrate, "%")
+errorrate <- round(error*100, digits = 2)
+paste0("Test errorrate is ",errorrate, "%")
 ```
 
-Reload the Boston dataset and standardize the dataset (we did not do this in the Exercise Set, but you should scale the variables to get comparable distances). Calculate the distances between the observations. Run k-means algorithm on the dataset. Investigate what is the optimal number of clusters and run the algorithm again. Visualize the clusters (for example with the pairs() or ggpairs() functions, where the clusters are separated with colors) and interpret the results. (0-4 points)
+*Reload the Boston dataset and standardize the dataset (we did not do this in the Exercise Set, but you should scale the variables to get comparable distances). Calculate the distances between the observations. Run k-means algorithm on the dataset. Investigate what is the optimal number of clusters and run the algorithm again. Visualize the clusters (for example with the pairs() or ggpairs() functions, where the clusters are separated with colors) and interpret the results. (0-4 points)*
+
+## Investigate the optimal number of clusters for kmeans
+
 
 ```{r}
 library(MASS)
@@ -216,6 +242,7 @@ pairs(boston_scaled, col = km$cluster)
 ```
 
 This is impossible to intrepret. Lets try different ways to look at clusters, 1.by dividing the dataset to include only few columns, 2. each correlation separately (doing only two that seem to have correlation for now)
+
 ```{r}
 pairs(boston_scaled[, 1:7], col = km$cluster)
 pairs(boston_scaled[, 8:14], col = km$cluster)

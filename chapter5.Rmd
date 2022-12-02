@@ -1,0 +1,205 @@
+---
+title: "chapter5.Rmd"
+author: "Sadiksha Adhikari"
+date: "2022-12-02"
+output: html_document
+---
+
+```{r}
+date()
+```
+
+# ASSIGNMENT 5: DIMENSIONALITY REDUCTION TECHNIQUES
+
+## Data wrangling
+Data wrangling part completed and saved by the name create_human_assignment5.R in data folder. Human data saved as human.txt.
+
+## Data analysis
+Loading from my data wrangling as well as link. Using only one for analysis
+
+```{r }
+human <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/human2.txt",sep =",", header = T)
+dim(human)
+str(human)
+human2 <- read.table("data/human.txt")
+dim(human2)
+str(human2)
+#they are same
+```
+
+*Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)*
+
+## Graphical overview and summary
+
+```{r }
+library(GGally)
+library(ggplot2)
+p <- ggpairs(human, mapping = aes(), lower = list(combo=wrap("facethist", bins=20)))+theme_bw()
+p
+```
+
+
+Correlation and distribution can also be visualized separately
+
+```{r }
+# Correlation
+library(corrplot)
+cor_mat <- cor(human)
+corrplot.mixed(cor_mat)
+```
+
+There is significant positive correlation OF Edu2.FM with Edu.Exp, Life.Exp and GNI. There is significant negative correlaton of Edu2.FM with Mat.Mor and Ado.Birth. Also positive correlation between Labo.FM with Mat.Mor and Parli.F. Significant positive correlation also seen in Edu.Exp with Life.Exp, GNI and Parli.F. Significant negative correlaiton observed of Edu exp with Mat.Mor and Ado.Birth. GNI shows significant negative correlation with Mat.Mor and Ado.Birth. Also Mat.Mor is significantly positively correlated with Ado.Birth. 
+
+```{r }
+# Distribution
+library(reshape)
+ggplot(data = melt(human), aes(x = value)) + 
+stat_density() + 
+facet_wrap(~variable, scales = "free")
+```
+
+Edu.Exp is normally distributed. Edu2.FM is slightly skewed left, more or less normally distributed. Labo.FM and  Life.Ep are skewed left. GNI, Mat.Mor, Ado.Birth skewed right and Parli.F more or less skewed right.  
+
+Here is the summary of the data:
+
+```{r }
+summary(human)
+```
+
+*Perform principal component analysis (PCA) on the raw (non-standardized) human data. Show the variability captured by the principal components. Draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables. (0-2 points)*
+
+## Principal component analysis (PCA) on the raw (non-standardized) human data
+
+
+```{r }
+pca_human <- prcomp(human)
+biplot(pca_human, choices = 1:2, cex=c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+*Standardize the variables in the human data and repeat the above analysis. Interpret the results of both analysis (with and without standardizing). Are the results different? Why or why not? Include captions (brief descriptions) in your plots where you describe the results by using not just your variable names, but the actual phenomena they relate to. (0-4 points)*
+
+## PCA on standardized the variables in the human data
+
+```{r }
+# standardize the variables
+human_std <- scale(human)
+
+# print out summaries of the standardized variables
+summary(human_std)
+
+# perform principal component analysis (with the SVD method)
+# draw a biplot of the principal component representation and the original variables
+
+pca_human <- prcomp(human_std)
+biplot(pca_human, choices = 1:2, cex=c(0.8, 1), col = c("grey40", "deeppink2"))
+
+```
+
+We know that BY scaling we subtract the column means from the corresponding columns and divided the difference with standard deviation. This brings the mean of each variable to zero. This can be seen as the difference in the plots if we compare the plots. In the unscaled plot, we get the warning "Warning: zero-length arrow is of indeterminate angle and so skipped". So we see only one arrow for GNI.
+
+In loading plot, the orientation (direction) of the vector, with respect to the principal component space, in particular, its angle with the principal component axes defines its contribution to the principal component: the more parallel to a principal component axis is a vector, the more it contributes only to that PC.
+In case of unscaled where we see only GNI, GNI is parallel to PC1 axis, hence GNI has strong influence on PC1.
+
+For scaled data, since the 0 is at the middle for both PCs, we see all variables labelled in the plot. Parli.F and Labo.FM strongly influence PC2. Edu.Exp, GNI, Edu2.FM, Life.Exp, Mat.Mor and Ado.Birth have strong say in PC1. Result on GNI is unchanged betweem scaled and unscaled data. Scaling and unscaling also seems to affect 
+how the clusters of countries look based on these variables. 
+In loading plot the angles between vectors of different variables show their correlation in this space: small angles represent high positive correlation, right angles represent lack of correlation, opposite angles represent high negative correlation. In unscaled since there is only one line, we can not intrepret this but in scaled we can. High positive correlation observed between Labo.FM and Parli.F, Mat.Mor and Ado.Birth. Also high positive correlation between Edu.Exp, GNI, Life.Exp and Edu2.FM.
+
+*Give your personal interpretations of the first two principal component dimensions based on the biplot drawn after PCA on the standardized human data. (0-2 points)*
+
+Loading plot in the above biplot can also be intrepreted by the length in the space; the longer the vector, the more variability of this variable is represented by the two displayed principal components; short vectors are thus better represented in other dimension. Based on the length of vectors in the scaled plot, PC1 and PC2 seem to be mostly representing variabiliy in education experience, Life expectancy, maternal mortality ratio and perhaps also ratio of Female and Male populations with secondary education.
+
+
+*The tea data comes from the FactoMineR package and it is measured with a questionnaire on tea: 300 individuals were asked how they drink tea (18 questions) and what are their product's perception (12 questions). In addition, some personal details were asked (4 questions).*
+*Load the tea dataset and convert its character variables to factors:*
+*Explore the data briefly: look at the structure and the dimensions of the data. Use View(tea) to browse its contents, and visualize the data.*
+
+## Load and explore tea dataset 
+
+```{r }
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/tea.csv", stringsAsFactors = TRUE)
+str(tea)
+dim(tea)
+#View(tea) #commented because it opens new R tab to view the data everytime I run the code, kindof annoying
+```
+
+## Visualize the data set
+```{r}
+# visualize the dataset
+library(dplyr)
+library(tidyr)
+# including only some column names to keep in the dataset
+
+#tea_time <- tea %>% select(Tea, How, how, sugar, where, lunch) #somehow index.Rmd gives me error with this code.
+
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+tea_time <- dplyr::select(tea, keep_columns)
+
+# look at the summaries and structure of the data
+summary(tea_time)
+str(tea_time)
+# visualize the dataset
+library(ggplot2)
+pivot_longer(tea_time, cols = everything()) %>% 
+  ggplot(aes(value)) + facet_wrap("name", scales = "free") +geom_bar() +theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+
+```
+
+Most people see to prefer packaged tea bag. Also most people seem no to prefer lunch time as tea time and also not prefer lemon, milk or anything in their tea. There are almost equal number of people prefering sugar and no sugar. They seem to mostly consume earl grey and tea bough tat chain store. 
+
+## Multiple Correspondence Analysis (MCA)
+
+*Use Multiple Correspondence Analysis (MCA) on the tea data (or on just certain columns of the data, it is up to you!). Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots. (0-4 points)*
+
+
+
+In the final plot different values for "ind" present in same column of the data have same color.
+
+```{r }
+library(FactoMineR)
+#res <- MCA(tea, quanti.sup=19, quali.sup=c(20:36), graph = F)
+```
+
+This code takes forever even when the graphs are not plotted.
+So I will also run the same with smaller dataset "tea_time" created with less number of columns 
+
+
+## Multiple Correspondence Analysis (MCA) on the selected columns of tea data
+
+```{r }
+library(FactoMineR)
+mca <- MCA(tea_time, graph = FALSE)
+# multiple correspondence analysis
+library(FactoMineR)
+mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+summary(mca)
+```
+
+## Visualization of MCA on the selected columns of tea data
+
+```{r }
+# visualize MCA, I have plotted viariable biplot as well as individual biplot
+plot.MCA(mca, invisible=c("var","quali.sup"), cex=0.7)
+plot(mca, invisible=c("ind","quali.sup"), cex=0.7)
+plot(mca, invisible=c("ind"))
+```
+
+The scatterplots are quite homogeneous with some extreme points such as unpackaged and tea shop in individual plot.
+
+```{r }
+# visualize MCA, I have plotted viariable biplot as well as individual biplot
+plot(mca, graph.type = "classic")
+plot(mca, invisible=c("var"), graph.type = "classic")
+plot(mca, invisible=c("ind"), graph.type = "classic")
+plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali")
+dimdesc(mca)
+
+```
+
+I fOUND it quite impossible to say anything on the first graphs. Most datapoints lie around  the center. The plots seem pretty homogenous with some extreme points. So I am also using dimdesc function which is used for intrepretation of MCA.
+
+The first principal component is characterized by the variables "how", "where" followed by "tea", "sugar" and "How. Characterization by categories seems similar to characterization by variables but it allowed more precision.For example, in dim1 the coordinate of the category "How=lemon" is positive whereas "How=milk"'s is negative. This means that individuals whose coordinate is positive tend to have tea with lemon. Another example in Dim1 is sugar (negative coordinate) and no sugar (positive coordinate), i.e individuals whose coordinate is positive tend to have tea without sugar.
