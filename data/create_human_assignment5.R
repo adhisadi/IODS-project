@@ -65,7 +65,3 @@ human2 <- read.table("human.txt")
 dim(human2)
 # 155 rows  8 columns
 
-human3 <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/human2.txt", 
-                    sep =",", header = T)
-identical(human2, human3)
-
